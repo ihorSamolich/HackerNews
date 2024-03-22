@@ -100,3 +100,27 @@ export async function addCommentToPost(comment: ICreateComment) {
     console.error('Error:', error);
   }
 }
+
+export async function addReplayToComment(comment: ICreateComment) {
+  try {
+    const response = await fetch(`${URL}/api/comment/reply-to-comment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        commentId: comment.replyId,
+        content: comment.content,
+        userEmail: comment.userEmail,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Failed to add reply');
+    } else {
+      revalidateTag('collection');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}

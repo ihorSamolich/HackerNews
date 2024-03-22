@@ -43,6 +43,7 @@ export interface IPost {
 }
 
 export interface IComment {
+  id: number;
   content: string;
   userName: string;
   userAvatar: string;
@@ -50,7 +51,8 @@ export interface IComment {
 }
 
 export interface ICreateComment {
-  postId: number;
+  postId?: number;
+  replyId?: number;
   content: string;
   userEmail: string;
   postSlug: string;

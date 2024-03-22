@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IComment, IPost } from '@/app/lib/definitions';
 import Image from 'next/image';
 import { formatDate } from '@/app/lib/utils/formatDate';
-import { addCommentToPost } from '@/app/lib/data';
+import { addCommentToPost, addReplayToComment } from '@/app/lib/data';
 import { useRouter } from 'next/navigation';
 import Notification from '@/app/ui/notification/Notification';
 
@@ -20,17 +20,38 @@ const Comments = ({ comments, post, userEmail }: ICommentsProps) => {
   const [comment, setComment] = useState<string>('');
   const router = useRouter();
   const [showNotification, setShowNotification] = useState<boolean>(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [replyId, setReplyId] = useState<number | null>(null);
+
+  const handleReply = (name: string, commentId: number) => {
+    setComment(`${name}, id ${commentId}`);
+    setReplyId(commentId);
+
+    inputRef.current?.focus();
+  };
 
   const handeSendComment = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (userEmail) {
-      addCommentToPost({
-        content: comment,
-        userEmail,
-        postId: post.id,
-        postSlug: post.urlSlug,
-      });
+      if (replyId) {
+        addReplayToComment({
+          content: comment,
+          userEmail,
+          replyId: replyId,
+          postSlug: post.urlSlug,
+        });
+
+        setReplyId(null);
+      } else {
+        addCommentToPost({
+          content: comment,
+          userEmail,
+          postId: post.id,
+          postSlug: post.urlSlug,
+        });
+      }
+
       setShowNotification(true);
       setComment('');
       setTimeout(() => {
@@ -59,6 +80,7 @@ const Comments = ({ comments, post, userEmail }: ICommentsProps) => {
               Your comment
             </label>
             <textarea
+              ref={inputRef}
               id="comment"
               rows={4}
               value={comment}
@@ -105,6 +127,9 @@ const Comments = ({ comments, post, userEmail }: ICommentsProps) => {
             <div className="mt-4 flex items-center space-x-4">
               <button
                 type="button"
+                onClick={() => {
+                  handleReply(comment.userName, comment.id);
+                }}
                 className="flex items-center text-sm font-medium text-gray-500 hover:underline dark:text-gray-400"
               >
                 <svg
