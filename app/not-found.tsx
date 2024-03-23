@@ -1,8 +1,6 @@
-'use client';
-
 import Link from 'next/link';
 
-export default function NotFound({}: {}) {
+export default function NotFound() {
   return (
     <section>
       <div className="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
